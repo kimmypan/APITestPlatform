@@ -65,28 +65,7 @@ export default {
         password: ''
       },
       passwordType: 'password',
-      capsTooltip: false,
-      redirect: undefined,
-      otherQuery: {}
-    }
-  },
-  watch: {
-    $route: {
-      handler: function(route) {
-        const query = route.query
-        if (query) {
-          this.redirect = query.redirect
-          this.otherQuery = this.getOtherQuery(query)
-        }
-      },
-      immediate: true
-    }
-  },
-  mounted() {
-    if (this.loginForm.username === '') {
-      this.$refs.username.focus()
-    } else if (this.loginForm.password === '') {
-      this.$refs.password.focus()
+      capsTooltip: false
     }
   },
   methods: {
@@ -94,19 +73,20 @@ export default {
     login() {
       Login(this.loginForm).then(res => {
         console.log(res.data)
-        this.userToken = 'Bearer ' + res.data.token
-        // 将用户token保存到vuex中
-        this.changeLogin({ Authorization: this.userToken })
-        this.$router.push('/api_info')
-      })
-    },
-    getOtherQuery(query) {
-      return Object.keys(query).reduce((acc, cur) => {
-        if (cur !== 'redirect') {
-          acc[cur] = query[cur]
+        if (res.data.code === 1){
+            this.userToken = 'Bearer ' + res.data.token
+            // 将用户token保存到vuex中
+            this.changeLogin({ Authorization: this.userToken })
+            // 前端首页
+            this.$router.push('/')
         }
-        return acc
-      }, {})
+        else {
+                // 使用elementui的消息提示
+                  this.$message({
+                    message: '错误错误'
+                  })
+                }
+      })
     },
     checkCapslock(e) {
       const { key } = e
